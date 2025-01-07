@@ -176,7 +176,7 @@ def validate_password(password: str) -> str:
 
 def validate_placename(placename: str):
     """
-    Validate place name to ensure it contains only alphabets, 
+    Validate place name to ensure it contains only alphabets, spaces, hyphens, and apostrophes,
     meets length requirements, and is not empty.
     """
     if not placename:
@@ -185,23 +185,29 @@ def validate_placename(placename: str):
             detail="Place name cannot be empty."
         )
     
-    if not re.match(r"^[a-zA-Z\s]+$", placename):
+    # Updated regex to allow alphabets, spaces, hyphens, and apostrophes
+    if not re.match(r"^[a-zA-Z\s'-]+$", placename):
         raise HTTPException(
             status_code=400,
-            detail="District name must contain only alphabets and spaces."
+            detail="Place name must contain only alphabets, spaces, hyphens, and apostrophes."
         )
     
+    # Minimum length check
     if len(placename) < 3:
         raise HTTPException(
             status_code=400,
-            detail="District name must be at least 3 characters long."
+            detail="Place name must be at least 3 characters long."
         )
     
+    # Maximum length check
     if len(placename) > 50:
         raise HTTPException(
             status_code=400,
             detail="Place name cannot exceed 50 characters."
         )
+    
+    return True
+
 
 
 
