@@ -221,6 +221,13 @@ def validate_emailid(emailid: str):
             status_code=400,
             detail="Email ID exceeds the maximum allowed length of 254 characters."
         )
+        
+    # Check if the email contains uppercase letters
+    if any(char.isupper() for char in emailid):
+        raise HTTPException(
+            status_code=400,
+            detail="Email ID must not contain uppercase letters."
+        )
 
     # Validate email format
     if not re.match(r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", emailid):
