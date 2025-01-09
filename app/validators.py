@@ -154,9 +154,6 @@ class PhoneNumberValidator(MinMaxLengthValidator):
         # Remove non-digit characters
         digits_only = re.sub(r"[^\d]", "", phonenumber)
         
-        # Sanitize the input to prevent XSS
-        zipcode = html.escape(zipcode)
-
         # Validate the length using the min_length and max_length passed to the parent class
         super().validate(digits_only)
 
@@ -514,29 +511,29 @@ class AlphanumericValidator(BaseValidator):
             self.raise_validation_error("Value must be alphanumeric (letters and numbers only).") 
         return True 
  
-class PhoneNumberValidator(BaseValidator): 
-    """Validates if the value is a valid phone number using the phonenumbers library.""" 
+# class PhoneNumberValidator(BaseValidator): 
+#     """Validates if the value is a valid phone number using the phonenumbers library.""" 
  
-    def validate(self, value): 
-        if not value: 
-            self.raise_validation_error("Phone number cannot be empty.") 
+#     def validate(self, value): 
+#         if not value: 
+#             self.raise_validation_error("Phone number cannot be empty.") 
  
-        try: 
-            # Parse the phone number using the phonenumbers library 
-            parsed_number = phonenumbers.parse(value, None)  # None allows parsing without a default region 
+#         try: 
+#             # Parse the phone number using the phonenumbers library 
+#             parsed_number = phonenumbers.parse(value, None)  # None allows parsing without a default region 
              
-            # Check if the phone number is valid 
-            if not phonenumbers.is_valid_number(parsed_number): 
-                self.raise_validation_error("Invalid phone number.") 
+#             # Check if the phone number is valid 
+#             if not phonenumbers.is_valid_number(parsed_number): 
+#                 self.raise_validation_error("Invalid phone number.") 
              
-            # Optional: Check if it's a mobile number (this part is adjustable) 
-            if not phonenumbers.number_type(parsed_number) == phonenumbers.PhoneNumberType.MOBILE: 
-                self.raise_validation_error("The provided phone number is not a mobile number.") 
+#             # Optional: Check if it's a mobile number (this part is adjustable) 
+#             if not phonenumbers.number_type(parsed_number) == phonenumbers.PhoneNumberType.MOBILE: 
+#                 self.raise_validation_error("The provided phone number is not a mobile number.") 
          
-        except phonenumbers.NumberParseException as e: 
-            self.raise_validation_error(f"Invalid phone number format: {str(e)}") 
+#         except phonenumbers.NumberParseException as e: 
+#             self.raise_validation_error(f"Invalid phone number format: {str(e)}") 
          
-        return True
+#         return True
 
 # Email validation
 

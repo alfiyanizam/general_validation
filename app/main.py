@@ -324,18 +324,18 @@ async def validate_alphanumeric_field(
 
  
  
-@app.post("/validate-phone-number") 
-async def validate_phone_number_endpoint( 
-    phonenumber: str 
-): 
-    phone_number_validator = PhoneNumberValidator() 
+# @app.post("/validate-phone-number") 
+# async def validate_phone_number_endpoint( 
+#     phonenumber: str 
+# ): 
+#     phone_number_validator = PhoneNumberValidator() 
      
-    try: 
-        phone_number_validator.validate(phonenumber) 
-    except HTTPException as e: 
-        raise e 
+#     try: 
+#         phone_number_validator.validate(phonenumber) 
+#     except HTTPException as e: 
+#         raise e 
  
-    return {"message": "Phone number is valid."}
+#     return {"message": "Phone number is valid."}
 
 
 # Boolean validation
