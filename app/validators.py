@@ -8,43 +8,62 @@ import phonenumbers
 
 class DateValidator:
     """
-    A class to validate date inputs in multiple formats: YYYY-MM-DD, DD/MM/YYYY, and MM/DD/YYYY.
+    A class to validate date inputs in multiple formats, including time:
+    - YYYY-MM-DD
+    - DD/MM/YYYY
+    - MM/DD/YYYY
+    - With optional time in HH:mm or HH:mm:ss or HH:mm:ss AM/PM
     """
 
     def __init__(self, date_string: str):
         self.date_string = date_string
-        self.supported_formats = ["%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"]  # Supported date formats
-
-    def validate_date_format(self) -> None:
-        """
-        Validates that the date string matches one of the supported formats.
-        """
-        # Regex patterns for supported formats
-        patterns = [
-            r"^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",  # YYYY-MM-DD
-            r"^(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])/\d{4}$",  # DD/MM/YYYY
-            r"^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/\d{4}$"   # MM/DD/YYYY
+        # Supported date and time formats
+        self.supported_formats = [
+            "%Y-%m-%d",                  # Date only
+            "%Y-%m-%d %H:%M",           # Date and time (24-hour)
+            "%Y-%m-%d %H:%M:%S",        # Date and time with seconds
+            "%d/%m/%Y",                 # Date only
+            "%d/%m/%Y %H:%M",           # Date and time (24-hour)
+            "%d/%m/%Y %H:%M:%S",        # Date and time with seconds
+            "%m/%d/%Y",                 # Date only
+            "%m/%d/%Y %H:%M",           # Date and time (24-hour)
+            "%m/%d/%Y %H:%M:%S",        # Date and time with seconds
+            "%Y-%m-%d %I:%M %p",        # Date and time (12-hour with AM/PM)
+            "%Y-%m-%d %I:%M:%S %p",     # Date and time with seconds and AM/PM
+            "%d/%m/%Y %I:%M %p",        # Date and time (12-hour with AM/PM)
+            "%d/%m/%Y %I:%M:%S %p",     # Date and time with seconds and AM/PM
+            "%m/%d/%Y %I:%M %p",        # Date and time (12-hour with AM/PM)
+            "%m/%d/%Y %I:%M:%S %p"      # Date and time with seconds and AM/PM
         ]
 
-        if not any(re.match(pattern, self.date_string) for pattern in patterns):
-            raise HTTPException(
-                status_code=400,
-                detail="Invalid date format. Expected formats: YYYY-MM-DD, DD/MM/YYYY, or MM/DD/YYYY."
-            )
-
-    def validate_calendar_date(self) -> datetime:
+    def determine_format(self) -> str:
         """
-        Ensures the date exists in the calendar. Returns the parsed date if valid.
+        Determines the likely format of the date string by attempting to parse it.
         """
-        for date_format in self.supported_formats:
+        for fmt in self.supported_formats:
             try:
-                return datetime.strptime(self.date_string, date_format)
+                # Try parsing with the current format
+                datetime.strptime(self.date_string, fmt)
+                return fmt
             except ValueError:
                 continue
+
         raise HTTPException(
             status_code=400,
-            detail="Invalid date. Ensure the date exists in the calendar."
+            detail="Unable to determine the format of the date."
         )
+
+    def validate_calendar_date(self, date_format: str) -> datetime:
+        """
+        Ensures the date and time exist in the calendar. Returns the parsed date if valid.
+        """
+        try:
+            return datetime.strptime(self.date_string, date_format)
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid date or time. Ensure the input matches the format {date_format}."
+            )
 
     def validate_not_future_year(self, date_obj: datetime) -> None:
         """
@@ -59,13 +78,12 @@ class DateValidator:
 
     def validate(self) -> None:
         """
-        Perform all validations on the date.
+        Perform all validations on the date and time.
         """
-        self.validate_date_format()
-        date_obj = self.validate_calendar_date()
+        date_format = self.determine_format()
+        date_obj = self.validate_calendar_date(date_format)
         self.validate_not_future_year(date_obj)
-
-
+        print(f"Date and time '{self.date_string}' are valid and follow the format {date_format}.")  
 
 class BaseValidator: 
     """Base class for all validators to ensure a unified interface.""" 
