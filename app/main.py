@@ -20,7 +20,7 @@ async def root():
         }
     }
 
-@app.get("/validate-numeric")
+@app.post("/validate-numeric")
 async def validate_numeric_field(
     value: str = Query(..., title="Value", description="Enter the value to check if it's numeric.")
 ):
@@ -39,7 +39,7 @@ async def validate_numeric_field(
     return {"message": "Value is a valid numeric value.", "validated_value": validated_value}
 
 
-@app.get("/validate-range")
+@app.post("/validate-range")
 async def validate_range_field(
     value: str = Query(..., title="Value", description="Enter the value to check if it's within the range."),
     min_value: float = Query(..., title="Min Value", description="Minimum allowed value for the number."),
@@ -65,7 +65,7 @@ async def validate_range_field(
     }
 
 
-@app.get("/validate-age")
+@app.post("/validate-age")
 async def validate_age_field(
     age: Union[float, int] = Query(..., title="Age", description="Enter the age to check if it's valid."),
     max_age: int = Query(None, title="Max Age", description="Optional maximum age limit."),
@@ -87,7 +87,7 @@ async def validate_age_field(
     
     return {"message": "Age is valid.", "validated_age": validated_age}
 
-@app.get("/validate-decimal")
+@app.post("/validate-decimal")
 async def validate_decimal_field(
     value: str = Query(..., title="Value", description="Enter the value to check if it's a decimal."),
     max_decimal_places: int = Query(None, title="Max Decimal Places", description="Specify the maximum decimal places if needed.")
@@ -104,7 +104,7 @@ async def validate_decimal_field(
     return {"message": "Value is a valid decimal number."}
 
 
-@app.get("/validate-length")
+@app.post("/validate-length")
 async def validate_length_field(
     value: str = Query(..., title="Value", description="Enter the value to check its length."),
     min_length: int = Query(3, ge=1, title="Minimum Length", description="Specify the minimum length."),
@@ -121,7 +121,7 @@ async def validate_length_field(
     
     return {"message": "Value is within the valid length range."}
 
-@app.get("/validate-alphanumeric")
+@app.post("/validate-alphanumeric")
 async def validate_alphanumeric_field(
     value: str = Query(..., title="Value", description="Enter the value to check if it's alphanumeric.")
 ):
@@ -137,7 +137,7 @@ async def validate_alphanumeric_field(
     return {"message": "Value is a valid alphanumeric string."}
 
 
-@app.get("/validate-phone-number")
+@app.post("/validate-phone-number")
 async def validate_phone_number(phonenumber: str, region: str = None):
     """
     API endpoint to validate a phone number globally.
@@ -156,7 +156,7 @@ async def validate_phone_number(phonenumber: str, region: str = None):
         "details": validation_result,
     }
 
-@app.get("/validate-emailid")
+@app.post("/validate-emailid")
 async def validate_email(
     emailid: str = Query(..., title="Email ID", description="Enter the email ID to validate.")
 ):
@@ -175,7 +175,7 @@ async def validate_email(
 
     return {"message": "Validation successful!"}
 
-@app.get("/validate-zipcode")
+@app.post("/validate-zipcode")
 async def validate_zipcode(
     zipcode: str = Query(..., title="Zipcode", description="Enter the zip code to validate.")
 ):
@@ -195,7 +195,7 @@ async def validate_zipcode(
     return {"message": "Validation successful!"}
 
 
-@app.get("/validate-pincode")
+@app.post("/validate-pincode")
 async def validate_pincode(
     pincode: str = Query(..., title="Pincode", description="Enter the pincode to validate.")
 ):
@@ -254,7 +254,7 @@ class DOBInput(BaseModel):
 
 
 
-@app.get("/validate-numeric") 
+@app.post("/validate-numeric") 
 async def validate_numeric_field( 
     value: str = Query(..., title="Value", description="Enter the value to check if it's numeric."), 
     min_value: float = Query(None, title="Min Value", description="Minimum allowed value for the number."), 
@@ -272,7 +272,7 @@ async def validate_numeric_field(
     return {"message": "Value is a valid numeric integer."} 
  
  
-@app.get("/validate-decimal") 
+@app.post("/validate-decimal") 
 async def validate_decimal_field( 
     value: str = Query(..., title="Value", description="Enter the value to check if it's a decimal."), 
     max_decimal_places: int = Query(None, title="Max Decimal Places", description="Specify the maximum decimal places if needed.") 
@@ -289,7 +289,7 @@ async def validate_decimal_field(
     return {"message": "Value is a valid decimal number."} 
  
  
-@app.get("/validate-length") 
+@app.post("/validate-length") 
 async def validate_length_field( 
     value: str = Query(..., title="Value", description="Enter the value to check its length."), 
     min_length: int = Query(3, ge=1, title="Minimum Length", description="Specify the minimum length."), 
@@ -306,7 +306,7 @@ async def validate_length_field(
      
     return {"message": "Value is within the valid length range."} 
  
-@app.get("/validate-alphanumeric") 
+@app.post("/validate-alphanumeric") 
 async def validate_alphanumeric_field( 
     value: str = Query(..., title="Value", description="Enter the value to check if it's alphanumeric.") 
 ): 
@@ -324,7 +324,7 @@ async def validate_alphanumeric_field(
 
  
  
-@app.get("/validate-phone-number") 
+@app.post("/validate-phone-number") 
 async def validate_phone_number_endpoint( 
     phonenumber: str 
 ): 
