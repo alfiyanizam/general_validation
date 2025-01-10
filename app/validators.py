@@ -359,7 +359,11 @@ class DateValidator:
             "%d/%m/%Y %I:%M %p",        # Date and time (12-hour with AM/PM)
             "%d/%m/%Y %I:%M:%S %p",     # Date and time with seconds and AM/PM
             "%m/%d/%Y %I:%M %p",        # Date and time (12-hour with AM/PM)
-            "%m/%d/%Y %I:%M:%S %p"      # Date and time with seconds and AM/PM
+            "%m/%d/%Y %I:%M:%S %p",     # Date and time with seconds and AM/PM
+            "%d %b %Y",                 # Date with abbreviated month name (e.g., 23 May 2020)
+            "%d %B %Y",                 # Date with full month name (e.g., 23 May 2020)
+            "%d %B %Y %H:%M",           # Date and time with full month name
+            "%d %B %Y %H:%M:%S",        # Date and time with seconds and full month name
         ]
 
     def determine_format(self) -> str:
@@ -402,6 +406,23 @@ class DateValidator:
                 detail="Invalid year. Year cannot be in the future."
             )
 
+    def validate_month(self, date_obj: datetime) -> None:
+        """
+        Ensures the input contains a valid month name or number.
+        """
+        try:
+            # Extract the month from the datetime object and validate
+            if date_obj.month < 1 or date_obj.month > 12:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid month. Please provide a valid month number (01-12) or name."
+                )
+        except ValueError:
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid month format. Ensure the input contains a valid month."
+            )
+
     def validate(self) -> None:
         """
         Perform all validations on the date and time.
@@ -409,133 +430,10 @@ class DateValidator:
         date_format = self.determine_format()
         date_obj = self.validate_calendar_date(date_format)
         self.validate_not_future_year(date_obj)
-        print(f"Date and time '{self.date_string}' are valid and follow the format {date_format}.")  
-
-class BaseValidator: 
-    """Base class for all validators to ensure a unified interface.""" 
- 
-    def validate(self, value): 
-        """This method should be implemented in child classes.""" 
-        raise NotImplementedError("Subclasses should implement this method.") 
- 
-    def raise_validation_error(self, message: str): 
-        """Helper method to raise validation error.""" 
-        raise HTTPException( 
-            status_code=422,  # HTTP status code for Unprocessable Entity 
-            detail={"error": message}, 
-        ) 
+        self.validate_month(date_obj)
+        print(f"Date and time '{self.date_string}' are valid and follow the format {date_format}.")
  
  
-class NumericValidator(BaseValidator): 
-    """Validates if the value is a numeric (integer) value.""" 
- 
-    def __init__(self, min_value: float = None, max_value: float = None): 
-        self.min_value = min_value 
-        self.max_value = max_value 
- 
-    def validate(self, value): 
-        try: 
-            # Check if the value is a valid numeric type (int or float) 
-            float_value = float(value)  # Try to convert to a float 
-        except ValueError: 
-            self.raise_validation_error("Value must be a valid number.") 
-         
-        # Check if the value is within the specified min/max range 
-        if self.min_value is not None and float_value < self.min_value: 
-            self.raise_validation_error(f"Value must be greater than {self.min_value}.") 
-        if self.max_value is not None and float_value > self.max_value: 
-            self.raise_validation_error(f"Value must be less than {self.max_value}.") 
-        return True 
-     
-class AgeValidator(NumericValidator): 
-    """Validates that the value is a valid age (greater than or equal to 18).""" 
- 
-    def __init__(self, min_age: int = 18, max_age: int = 120): 
-        super().__init__(min_value=min_age, max_value=max_age) 
- 
-    def validate(self, value): 
-        super().validate(value) 
-        # Additional check for the specific age range 
-        if value < self.min_value: 
-            self.raise_validation_error(f"Age must be at least {self.min_value}.") 
-        elif value > self.max_value: 
-            self.raise_validation_error(f"Age must be less than {self.max_value}.") 
-        return True 
- 
- 
-class DecimalValidator(BaseValidator): 
-    """Validates if the value is a decimal number with optional precision.""" 
- 
-    def __init__(self, max_decimal_places: int = None): 
-        self.max_decimal_places = max_decimal_places 
- 
-    def validate(self, value): 
-        # Ensure value is a string or numeric type 
-        value_str = str(value) 
-         
-        # Update regex pattern to allow negative numbers, integers, and decimals 
-        regex = r"^-?\d+(\.\d{1," + (str(self.max_decimal_places) if self.max_decimal_places else "10") + "})?$" 
-         
-        if not re.match(regex, value_str): 
-            self.raise_validation_error("Value must be a valid decimal number.") 
-         
-        return True 
- 
- 
-class MinMaxLengthValidator(BaseValidator): 
-    """Validates the minimum and maximum length of a string.""" 
- 
-    def __init__(self, min_length: int = None, max_length: int = None): 
-        self.min_length = min_length 
-        self.max_length = max_length 
- 
-    def validate(self, value): 
-        if not isinstance(value, str): 
-            self.raise_validation_error("Value must be a string.") 
- 
-        if self.min_length and len(value) < self.min_length: 
-            self.raise_validation_error(f"String must be at least {self.min_length} characters long.") 
-         
-        if self.max_length and len(value) > self.max_length: 
-            self.raise_validation_error(f"String must be at most {self.max_length} characters long.") 
-         
-        return True 
- 
- 
-class AlphanumericValidator(BaseValidator): 
-    """Validates if the value is alphanumeric (letters and numbers only).""" 
-     
-    def validate(self, value): 
-        # Regex to match only alphanumeric characters (letters and digits) 
-        if not re.match(r"^[a-zA-Z0-9]+$", str(value)): 
-            self.raise_validation_error("Value must be alphanumeric (letters and numbers only).") 
-        return True 
- 
-# class PhoneNumberValidator(BaseValidator): 
-#     """Validates if the value is a valid phone number using the phonenumbers library.""" 
- 
-#     def validate(self, value): 
-#         if not value: 
-#             self.raise_validation_error("Phone number cannot be empty.") 
- 
-#         try: 
-#             # Parse the phone number using the phonenumbers library 
-#             parsed_number = phonenumbers.parse(value, None)  # None allows parsing without a default region 
-             
-#             # Check if the phone number is valid 
-#             if not phonenumbers.is_valid_number(parsed_number): 
-#                 self.raise_validation_error("Invalid phone number.") 
-             
-#             # Optional: Check if it's a mobile number (this part is adjustable) 
-#             if not phonenumbers.number_type(parsed_number) == phonenumbers.PhoneNumberType.MOBILE: 
-#                 self.raise_validation_error("The provided phone number is not a mobile number.") 
-         
-#         except phonenumbers.NumberParseException as e: 
-#             self.raise_validation_error(f"Invalid phone number format: {str(e)}") 
-         
-#         return True
-
-# Email validation
 
         
 # Boolean validation
