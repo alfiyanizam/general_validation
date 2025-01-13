@@ -136,6 +136,20 @@ async def validate_alphanumeric_field(
     
     return {"message": "Value is a valid alphanumeric string."}
 
+@app.post("/validate-alphabetset")
+async def validate_alphabetset_field(
+    value: str = Query(..., title="Value", description="Enter the value to check if it's character string.")
+):
+    # Initialize the alphanumeric validator
+    alphabetset_validator = AlphabetSetValidator()
+    
+    try:
+        # Validate the value
+        alphabetset_validator.validate(value)
+    except HTTPException as e:
+        raise e
+    
+    return {"message": "Value is a valid character string."}
 
 @app.post("/validate-phone-number")
 async def validate_phone_number(phonenumber: str, region: str = None):

@@ -79,13 +79,14 @@ class DecimalValidator(BaseValidator):
         self.max_decimal_places = max_decimal_places
 
     def validate(self, value):
-        # Ensure value is a string or numeric type
-        value_str = str(value)
+        
+        # Sanitize the input
+        value = html.escape(str(value))
         
         # Update regex pattern to allow negative numbers, integers, and decimals
         regex = r"^-?\d+(\.\d{1," + (str(self.max_decimal_places) if self.max_decimal_places else "10") + "})?$"
         
-        if not re.match(regex, value_str):
+        if not re.match(regex, value):
             self.raise_validation_error("Value must be a valid decimal number.")
         
         return True
@@ -99,6 +100,8 @@ class MinMaxLengthValidator(BaseValidator):
         self.max_length = max_length
 
     def validate(self, value):
+        # Sanitize the input
+        value = html.escape(str(value))
         if not isinstance(value, str):
             self.raise_validation_error("Value must be a string.")
 
@@ -115,9 +118,26 @@ class AlphanumericValidator(BaseValidator):
     """Validates if the value is alphanumeric (letters and numbers only)."""
     
     def validate(self, value):
+        if not value:
+            self.raise_validation_error("Textfield cannot be empty.")
+        # Sanitize the input
+        value = html.escape(str(value))
         # Regex to match only alphanumeric characters (letters and digits)
         if not re.match(r"^[a-zA-Z0-9]+$", str(value)):
             self.raise_validation_error("Value must be alphanumeric (letters and numbers only).")
+        return True
+    
+class AlphabetSetValidator(BaseValidator):
+    """Validates if the value is alphabets (letters only)."""
+    
+    def validate(self, value):
+        if not value:
+            self.raise_validation_error("Textfield cannot be empty.")
+        # Sanitize the input
+        value = html.escape(str(value))
+        # Regex to match only alphanumeric characters (letters and digits)
+        if not re.match(r"^[a-zA-Z]+$", str(value)):
+            self.raise_validation_error("Value must be alphabets (letters only).")
         return True
 
 class PhoneNumberValidator(MinMaxLengthValidator):
@@ -328,7 +348,7 @@ import re
 
 from fastapi import HTTPException, APIRouter, UploadFile
 from datetime import datetime
-import phonenumbers
+
 
 
 
